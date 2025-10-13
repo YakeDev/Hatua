@@ -371,7 +371,7 @@ const App = () => {
 		if (!element) return
 
 		const opt = {
-			margin: [20, 15],
+			margin: [6, 10],
 			filename: 'cv.pdf',
 			image: { type: 'jpeg', quality: 1 },
 			html2canvas: {
@@ -389,7 +389,12 @@ const App = () => {
 		}
 
 		const container = document.createElement('div')
-		container.style.padding = '40px 30px'
+		container.style.width = '210mm'
+		container.style.minHeight = '297mm'
+		container.style.padding = '12mm 14mm'
+		container.style.backgroundColor = '#ffffff'
+		container.style.margin = '0 auto'
+		container.style.boxSizing = 'border-box'
 		const cloned = element.cloneNode(true)
 		container.appendChild(cloned)
 
