@@ -5,18 +5,53 @@ const CvGeneralInfo = ({
   profession = "Front-end Developer",
   email = "erickay.dev@gmail.com",
   phone = "+243 810 000 000",
+  accentColor = "#1d4ed8",
+  textColor = "#0f172a",
+  photoUrl,
+  compact = false,
 }) => {
+  const containerClass = compact
+    ? "flex flex-col gap-6 md:flex-row md:items-center md:justify-between"
+    : "grid grid-cols-12 gap-6 items-center";
+
   return (
-    <div className="grid grid-cols-12 items-center">
-      <div className="col-span-8">
-        <h1 className="text-2xl uppercase font-serif">{name}</h1>
-        <p className="text-slate-400 uppercase font-normal text-sm">
-          {profession}
-        </p>
+    <div className={containerClass} style={{ color: textColor }}>
+      <div
+        className={
+          compact
+            ? "flex items-center gap-6"
+            : "col-span-8 flex items-center gap-6"
+        }
+      >
+        {photoUrl ? (
+          <img
+            src={photoUrl}
+            alt={`${name} portrait`}
+            className="h-20 w-20 rounded-full object-cover shadow-lg"
+            style={{ border: `3px solid ${accentColor}` }}
+          />
+        ) : null}
+        <div>
+          <h1
+            className="text-2xl uppercase tracking-widest font-semibold"
+            style={{ color: accentColor }}
+          >
+            {name}
+          </h1>
+          <p className="uppercase font-normal text-sm opacity-80">
+            {profession}
+          </p>
+        </div>
       </div>
-      <div className="ek-contact-info col-span-4">
-        <p className="ek-contact-info-item">{email}</p>
-        <p className="ek-contact-info-item">{phone}</p>
+      <div
+        className={
+          compact
+            ? "flex flex-col items-start gap-1 text-sm"
+            : "ek-contact-info col-span-4 flex flex-col gap-1 text-sm items-start"
+        }
+      >
+        <p className="font-medium">{email}</p>
+        <p>{phone}</p>
       </div>
     </div>
   );
@@ -27,6 +62,10 @@ CvGeneralInfo.propTypes = {
   profession: PropTypes.string,
   email: PropTypes.string,
   phone: PropTypes.string,
+  accentColor: PropTypes.string,
+  textColor: PropTypes.string,
+  photoUrl: PropTypes.string,
+  compact: PropTypes.bool,
 };
 
 export default CvGeneralInfo;

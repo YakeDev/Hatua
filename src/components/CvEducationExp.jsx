@@ -4,6 +4,8 @@ const CvEducationExp = ({
   titleStudy = "Title Study",
   schoolName = "School Nam",
   dateOfStudy = null,
+  textColor,
+  accentColor,
 }) => {
   const hasValidDate =
     dateOfStudy instanceof Date && !Number.isNaN(dateOfStudy.getTime());
@@ -16,15 +18,21 @@ const CvEducationExp = ({
       })
     : null;
 
+  const containerStyle = textColor ? { color: textColor } : undefined;
+  const headingStyle = accentColor ? { color: accentColor } : undefined;
+
   return (
-    <div className="education-experience font-normal text-normal text-slate-500 ps-3 mb-3">
-      <h3 className="font-medium text-slate-600 uppercase text-sm">
+    <div className="education-experience font-normal ps-3 mb-3">
+      <h3
+        className="font-medium uppercase text-sm tracking-wide"
+        style={headingStyle}
+      >
         {titleStudy}
       </h3>
-      <p className="text-sm">
-        <span className="">{schoolName}</span>
-        {formattedDate ? <span> | {formattedDate}</span> : null}
-        {!formattedDate ? <span> | Date not specified</span> : null}
+      <p className="text-sm" style={containerStyle}>
+        {[schoolName, formattedDate || "Date à préciser"]
+          .filter(Boolean)
+          .join(" | ")}
       </p>
     </div>
   );
@@ -38,6 +46,8 @@ CvEducationExp.propTypes = {
     PropTypes.instanceOf(Date),
     PropTypes.oneOf([null]),
   ]), // Validation pour s'assurer que c'est une date
+  textColor: PropTypes.string,
+  accentColor: PropTypes.string,
 };
 
 export default CvEducationExp;

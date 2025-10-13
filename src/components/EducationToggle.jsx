@@ -1,6 +1,6 @@
 import EducationForm from "./EducationForm";
 import PropTypes from "prop-types";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { BiChevronUp, BiChevronDown, BiTrash } from "react-icons/bi";
 
 const EducationToggle = ({
@@ -37,10 +37,46 @@ const EducationToggle = ({
     onChange(id, updatedEducationInfo); // Faire remonter les informations à App
   };
 
+  const summary = useMemo(() => {
+    const formatSummaryDate = (date) => {
+      if (!(date instanceof Date) || Number.isNaN(date.getTime())) return null;
+      return date.toLocaleDateString("fr-FR", {
+        month: "short",
+        year: "numeric",
+      });
+    };
+
+    const parts = [];
+
+    if (educationInfo.studyTitle) {
+      parts.push(educationInfo.studyTitle);
+    }
+
+    if (educationInfo.schoolName) {
+      parts.push(educationInfo.schoolName);
+    }
+
+    const formattedDate = formatSummaryDate(educationInfo.dateOfStudy);
+    if (formattedDate) {
+      parts.push(formattedDate);
+    }
+
+    return parts.join(" • ");
+  }, [educationInfo]);
+
   return (
     <div className=" border border-slate-200 rounded-xl mb-3">
-      <div className="toggle-header flex items-center justify-between w-full p-3 font-medium rtl:text-right text-gray-500  focus:ring-4 rounded-xl border border-t-0 border-x-0  focus:ring-gray-200 dark:focus:ring-gray-800 dark:border-slate-700 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 gap-3">
-        <p>{title}</p>
+      <div className="toggle-header flex items-start justify-between w-full p-3 font-medium rtl:text-right text-gray-500 focus:ring-4 rounded-xl border border-t-0 border-x-0 focus:ring-gray-200 dark:focus:ring-gray-800 dark:border-slate-700 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 gap-3">
+        <div className="flex-1">
+          <p className="text-sm font-semibold text-slate-600">{title}</p>
+          {summary ? (
+            <p className="mt-1 text-xs font-normal text-slate-500">{summary}</p>
+          ) : (
+            <p className="mt-1 text-xs font-normal text-slate-400">
+              Ajoutez les informations de cette formation.
+            </p>
+          )}
+        </div>
         <button onClick={handleToggle} className="text-xl p-1">
           {isOpen ? <BiChevronDown /> : <BiChevronUp />}
         </button>

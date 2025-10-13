@@ -6,6 +6,9 @@ const CvPracticalExp = ({
   location = "Company location",
   startDate = null,
   endDate = null,
+  isCurrent = false,
+  textColor,
+  accentColor,
 }) => {
   const hasValidStart =
     startDate instanceof Date && !Number.isNaN(startDate.getTime());
@@ -27,22 +30,32 @@ const CvPracticalExp = ({
       })
     : null;
 
-  let dateRange = "Dates not specified";
+  let dateRange = "Dates à préciser";
   if (formattedStartDate && formattedEndDate) {
     dateRange = `${formattedStartDate} - ${formattedEndDate}`;
+  } else if (formattedStartDate && isCurrent) {
+    dateRange = `${formattedStartDate} - Présent`;
   } else if (formattedStartDate) {
-    dateRange = `${formattedStartDate} - Present`;
-  } else if (formattedEndDate) {
+    dateRange = formattedStartDate;
+  } else if (formattedEndDate && !isCurrent) {
     dateRange = formattedEndDate;
+  } else if (isCurrent) {
+    dateRange = "Présent";
   }
 
+  const containerStyle = textColor ? { color: textColor } : undefined;
+  const headingStyle = accentColor ? { color: accentColor } : undefined;
+
   return (
-    <div className="font-normal text-sm text-slate-500 ps-3 mb-3">
-      <p className="text-slate-600 uppercase font-semibold">{practicalTitle}</p>
+    <div className="font-normal text-sm ps-3 mb-3" style={containerStyle}>
+      <p className="uppercase font-semibold" style={headingStyle}>
+        {practicalTitle}
+      </p>
       <p>
-        <span className="font-medium text-sm">{company}, </span>
-        <span>{location} | </span>
-        <span>{dateRange}</span>
+        <span className="font-medium text-sm">{company}</span>
+        <span>{company && location ? " • " : ""}</span>
+        <span>{location}</span>
+        <span>{` | ${dateRange}`}</span>
       </p>
     </div>
   );
@@ -61,6 +74,9 @@ CvPracticalExp.propTypes = {
     PropTypes.instanceOf(Date),
     PropTypes.oneOf([null]),
   ]), // Validation pour s'assurer que c'est une date
+  isCurrent: PropTypes.bool,
+  textColor: PropTypes.string,
+  accentColor: PropTypes.string,
 };
 
 export default CvPracticalExp;

@@ -24,7 +24,7 @@ const EducationForm = ({ educationInfo, onChange }) => {
             type="text"
             name="studyTitle"
             required
-            placeholder="Title of study"
+            placeholder="Ex. Ingénierie logicielle (M2)"
             value={educationInfo.studyTitle}
             onChange={onChange}
             className="bg-gray-50 border border-slate-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
@@ -42,7 +42,7 @@ const EducationForm = ({ educationInfo, onChange }) => {
             type="text"
             name="schoolName"
             required
-            placeholder="School name"
+            placeholder="Ex. Université Polytechnique de Paris"
             value={educationInfo.schoolName}
             onChange={onChange}
             className="bg-gray-50 border border-slate-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
@@ -64,6 +64,9 @@ const EducationForm = ({ educationInfo, onChange }) => {
             onChange={onChange}
             className="bg-gray-50 border border-slate-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
           />
+          <p className="mt-1 text-xs text-slate-500">
+            Laissez vide si la formation est toujours en cours.
+          </p>
         </div>
       </form>
     </div>

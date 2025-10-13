@@ -1,6 +1,6 @@
 import PracticalForm from "./PracticalForm";
 import PropTypes from "prop-types";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { BiChevronUp, BiChevronDown, BiTrash } from "react-icons/bi";
 
 const PracticalToggle = ({
@@ -17,7 +17,7 @@ const PracticalToggle = ({
   };
 
   const handlePracticalChange = (event) => {
-    const { name, value } = event.target;
+    const { name, value, type, checked } = event.target;
     let updatedValue = value;
 
     if (name === "startDate" || name === "endDate") {
@@ -28,6 +28,9 @@ const PracticalToggle = ({
         updatedValue = Number.isNaN(parsedDate.getTime()) ? null : parsedDate;
       }
     }
+    if (name === "isCurrent" && type === "checkbox") {
+      updatedValue = checked;
+    }
 
     const updatedPracticalInfo = {
       ...practicalInfo,
@@ -37,10 +40,43 @@ const PracticalToggle = ({
     onChange(id, updatedPracticalInfo);
   };
 
+  const summary = useMemo(() => {
+    const formatSummaryDate = (date) => {
+      if (!(date instanceof Date) || Number.isNaN(date.getTime())) return null;
+      return date.toLocaleDateString("fr-FR", {
+        month: "short",
+        year: "numeric",
+      });
+    };
+
+    const role = practicalInfo.practicalTitle || "Rôle à préciser";
+    const company = practicalInfo.company || "Entreprise";
+    const start = formatSummaryDate(practicalInfo.startDate);
+    const end = practicalInfo.isCurrent
+      ? "Présent"
+      : formatSummaryDate(practicalInfo.endDate);
+
+    const dateSegment =
+      start || end ? `${start ?? "Date à définir"} – ${end ?? "Date à définir"}` : "";
+
+    return [role, company, dateSegment]
+      .filter((segment) => Boolean(segment))
+      .join(" • ");
+  }, [practicalInfo]);
+
   return (
     <div className="border border-gray-200 rounded-xl mb-3">
-      <div className="toggle-header flex items-center justify-between w-full p-3 font-medium rtl:text-right text-gray-500  focus:ring-4 rounded-xl border border-t-0 border-x-0  focus:ring-gray-200 dark:focus:ring-gray-800 dark:border-slate-700 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 gap-3">
-        <p>{title}</p>
+      <div className="toggle-header flex items-start justify-between w-full p-3 font-medium rtl:text-right text-gray-500  focus:ring-4 rounded-xl border border-t-0 border-x-0  focus:ring-gray-200 dark:focus:ring-gray-800 dark:border-slate-700 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 gap-3">
+        <div className="flex-1">
+          <p className="text-sm font-semibold text-slate-600">{title}</p>
+          {summary ? (
+            <p className="mt-1 text-xs font-normal text-slate-500">{summary}</p>
+          ) : (
+            <p className="mt-1 text-xs font-normal text-slate-400">
+              Ajoutez les informations de cette expérience.
+            </p>
+          )}
+        </div>
         <button onClick={handleToggle} className="text-xl p-1">
           {isOpen ? <BiChevronDown /> : <BiChevronUp />}
         </button>
@@ -51,6 +87,7 @@ const PracticalToggle = ({
           <PracticalForm
             practicalInfo={practicalInfo}
             onChange={handlePracticalChange}
+            formId={id}
           />
           <button
             type="button"
@@ -82,6 +119,7 @@ PracticalToggle.propTypes = {
       PropTypes.instanceOf(Date),
       PropTypes.oneOf([null]),
     ]),
+    isCurrent: PropTypes.bool,
   }).isRequired, // Ensure practicalInfo is always provided
 };
 

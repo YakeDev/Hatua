@@ -1,12 +1,17 @@
 import PropTypes from "prop-types";
 
-const CvObjective = ({ objectiveText = "" }) => {
+const CvObjective = ({ objectiveText = "", textColor }) => {
+  const textStyle = textColor ? { color: textColor } : undefined;
+
   return (
-    <div className="font-normal text-sm text-slate-600 ps-3 mb-3">
+    <div
+      className="font-normal text-sm leading-relaxed ps-3 mb-3"
+      style={textStyle}
+    >
       {objectiveText ? (
         <p>{objectiveText}</p>
       ) : (
-        <p>Aucun objectif défini.</p> // Message par défaut si aucun objectif n'est fourni
+        <p>Aucun objectif défini.</p>
       )}
     </div>
   );
@@ -14,6 +19,7 @@ const CvObjective = ({ objectiveText = "" }) => {
 
 CvObjective.propTypes = {
   objectiveText: PropTypes.string,
+  textColor: PropTypes.string,
 };
 
 export default CvObjective;
