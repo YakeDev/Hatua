@@ -18,13 +18,15 @@ const PracticalToggle = ({
 
   const handlePracticalChange = (event) => {
     const { name, value } = event.target;
-    const updatedValue =
-      name === "startDate" || name === "endDate" ? new Date(value) : value;
+    let updatedValue = value;
 
-    // Check for valid dates
-    if ((name === "startDate" || name === "endDate") && isNaN(updatedValue)) {
-      console.error("Invalid date");
-      return; // Optionally reset to previous valid date
+    if (name === "startDate" || name === "endDate") {
+      if (!value) {
+        updatedValue = null;
+      } else {
+        const parsedDate = new Date(value);
+        updatedValue = Number.isNaN(parsedDate.getTime()) ? null : parsedDate;
+      }
     }
 
     const updatedPracticalInfo = {
@@ -72,8 +74,14 @@ PracticalToggle.propTypes = {
     practicalTitle: PropTypes.string.isRequired,
     company: PropTypes.string.isRequired,
     location: PropTypes.string.isRequired,
-    startDate: PropTypes.instanceOf(Date),
-    endDate: PropTypes.instanceOf(Date),
+    startDate: PropTypes.oneOfType([
+      PropTypes.instanceOf(Date),
+      PropTypes.oneOf([null]),
+    ]),
+    endDate: PropTypes.oneOfType([
+      PropTypes.instanceOf(Date),
+      PropTypes.oneOf([null]),
+    ]),
   }).isRequired, // Ensure practicalInfo is always provided
 };
 

@@ -18,7 +18,16 @@ const EducationToggle = ({
 
   const handleEducationChange = (event) => {
     const { name, value } = event.target;
-    const updatedValue = name === "dateOfStudy" ? new Date(value) : value;
+    let updatedValue = value;
+
+    if (name === "dateOfStudy") {
+      if (!value) {
+        updatedValue = null;
+      } else {
+        const parsedDate = new Date(value);
+        updatedValue = Number.isNaN(parsedDate.getTime()) ? null : parsedDate;
+      }
+    }
 
     const updatedEducationInfo = {
       ...educationInfo,
@@ -63,7 +72,10 @@ EducationToggle.propTypes = {
   educationInfo: PropTypes.shape({
     schoolName: PropTypes.string,
     studyTitle: PropTypes.string,
-    dateOfStudy: PropTypes.instanceOf(Date),
+    dateOfStudy: PropTypes.oneOfType([
+      PropTypes.instanceOf(Date),
+      PropTypes.oneOf([null]),
+    ]),
   }).isRequired,
 };
 

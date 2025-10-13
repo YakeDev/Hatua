@@ -1,5 +1,13 @@
 import PropTypes from "prop-types";
 
+const formatDateInputValue = (date) => {
+  if (!(date instanceof Date)) {
+    return "";
+  }
+
+  return Number.isNaN(date.getTime()) ? "" : date.toISOString().split("T")[0];
+};
+
 const PracticalForm = ({ practicalInfo, onChange }) => {
   return (
     <div>
@@ -70,11 +78,7 @@ const PracticalForm = ({ practicalInfo, onChange }) => {
               type="date"
               name="startDate"
               id="start-date"
-              value={
-                practicalInfo.startDate
-                  ? practicalInfo.startDate.toISOString().split("T")[0]
-                  : ""
-              } // Formater la date
+              value={formatDateInputValue(practicalInfo.startDate)} // Formater la date
               onChange={onChange}
               className="bg-gray-50 border border-slate-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             />
@@ -90,11 +94,7 @@ const PracticalForm = ({ practicalInfo, onChange }) => {
               type="date"
               name="endDate"
               id="end-date"
-              value={
-                practicalInfo.endDate
-                  ? practicalInfo.endDate.toISOString().split("T")[0]
-                  : ""
-              } // Formater la date
+              value={formatDateInputValue(practicalInfo.endDate)} // Formater la date
               onChange={onChange}
               className="bg-gray-50 border border-slate-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
             />
@@ -111,8 +111,14 @@ PracticalForm.propTypes = {
     practicalTitle: PropTypes.string,
     company: PropTypes.string.isRequired,
     location: PropTypes.string.isRequired,
-    startDate: PropTypes.instanceOf(Date),
-    endDate: PropTypes.instanceOf(Date),
+    startDate: PropTypes.oneOfType([
+      PropTypes.instanceOf(Date),
+      PropTypes.oneOf([null]),
+    ]),
+    endDate: PropTypes.oneOfType([
+      PropTypes.instanceOf(Date),
+      PropTypes.oneOf([null]),
+    ]),
   }),
   onChange: PropTypes.func.isRequired,
 };

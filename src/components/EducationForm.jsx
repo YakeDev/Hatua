@@ -1,5 +1,13 @@
 import PropTypes from "prop-types"; // Import PropTypes
 
+const formatDateInputValue = (date) => {
+  if (!(date instanceof Date)) {
+    return "";
+  }
+
+  return Number.isNaN(date.getTime()) ? "" : date.toISOString().split("T")[0];
+};
+
 const EducationForm = ({ educationInfo, onChange }) => {
   return (
     <div>
@@ -52,11 +60,7 @@ const EducationForm = ({ educationInfo, onChange }) => {
             type="date"
             id="date-of-study"
             name="dateOfStudy"
-            value={
-              educationInfo.dateOfStudy
-                ? educationInfo.dateOfStudy.toISOString().split("T")[0]
-                : ""
-            } // Format Date for input
+            value={formatDateInputValue(educationInfo.dateOfStudy)} // Format Date for input
             onChange={onChange}
             className="bg-gray-50 border border-slate-200 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
           />
@@ -71,7 +75,10 @@ EducationForm.propTypes = {
   educationInfo: PropTypes.shape({
     studyTitle: PropTypes.string.isRequired,
     schoolName: PropTypes.string.isRequired,
-    dateOfStudy: PropTypes.instanceOf(Date), // Expect a Date object
+    dateOfStudy: PropTypes.oneOfType([
+      PropTypes.instanceOf(Date),
+      PropTypes.oneOf([null]),
+    ]), // Expect a Date object or null
   }).isRequired, // This prop is required
   onChange: PropTypes.func.isRequired, // Expect a function for onChange
 };

@@ -3,13 +3,18 @@ import PropTypes from "prop-types";
 const CvEducationExp = ({
   titleStudy = "Title Study",
   schoolName = "School Nam",
-  dateOfStudy = new Date("2024-10-01"), // Valeur par défaut comme une instance de Date
+  dateOfStudy = null,
 }) => {
+  const hasValidDate =
+    dateOfStudy instanceof Date && !Number.isNaN(dateOfStudy.getTime());
+
   // Formatage de la date pour n'afficher que le mois et l'année
-  const formattedDate = dateOfStudy.toLocaleString("default", {
-    month: "long", // Affiche le mois complet
-    year: "numeric", // Affiche l'année
-  });
+  const formattedDate = hasValidDate
+    ? dateOfStudy.toLocaleString("default", {
+        month: "long", // Affiche le mois complet
+        year: "numeric", // Affiche l'année
+      })
+    : null;
 
   return (
     <div className="education-experience font-normal text-normal text-slate-500 ps-3 mb-3">
@@ -17,8 +22,9 @@ const CvEducationExp = ({
         {titleStudy}
       </h3>
       <p className="text-sm">
-        <span className="">{schoolName} | </span>
-        <span>{formattedDate}</span>
+        <span className="">{schoolName}</span>
+        {formattedDate ? <span> | {formattedDate}</span> : null}
+        {!formattedDate ? <span> | Date not specified</span> : null}
       </p>
     </div>
   );
@@ -28,7 +34,10 @@ const CvEducationExp = ({
 CvEducationExp.propTypes = {
   titleStudy: PropTypes.string, // Valeur par défaut, donc pas de isRequired
   schoolName: PropTypes.string, // Valeur par défaut, donc pas de isRequired
-  dateOfStudy: PropTypes.instanceOf(Date), // Validation pour s'assurer que c'est une date
+  dateOfStudy: PropTypes.oneOfType([
+    PropTypes.instanceOf(Date),
+    PropTypes.oneOf([null]),
+  ]), // Validation pour s'assurer que c'est une date
 };
 
 export default CvEducationExp;

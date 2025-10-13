@@ -35,7 +35,7 @@ const CvPreview = ({
 							key={index}
 							titleStudy={educationInfo?.studyTitle || 'Study Title'}
 							schoolName={educationInfo?.schoolName || 'School Name'}
-							dateOfStudy={educationInfo?.dateOfStudy || new Date()}
+							dateOfStudy={educationInfo?.dateOfStudy}
 						/>
 					))
 				) : (
@@ -53,8 +53,8 @@ const CvPreview = ({
 							}
 							company={practicalInfo?.company || 'Company Name'}
 							location={practicalInfo?.location || 'Location'}
-							startDate={practicalInfo?.startDate || new Date()}
-							endDate={practicalInfo?.endDate || new Date()}
+							startDate={practicalInfo?.startDate}
+							endDate={practicalInfo?.endDate}
 						/>
 					))
 				) : (
@@ -82,7 +82,10 @@ CvPreview.propTypes = {
 		PropTypes.shape({
 			schoolName: PropTypes.string,
 			studyTitle: PropTypes.string,
-			dateOfStudy: PropTypes.instanceOf(Date),
+			dateOfStudy: PropTypes.oneOfType([
+				PropTypes.instanceOf(Date),
+				PropTypes.oneOf([null]),
+			]),
 		})
 	),
 
@@ -90,8 +93,14 @@ CvPreview.propTypes = {
 		PropTypes.shape({
 			company: PropTypes.string,
 			location: PropTypes.string,
-			startDate: PropTypes.instanceOf(Date),
-			endDate: PropTypes.instanceOf(Date),
+			startDate: PropTypes.oneOfType([
+				PropTypes.instanceOf(Date),
+				PropTypes.oneOf([null]),
+			]),
+			endDate: PropTypes.oneOfType([
+				PropTypes.instanceOf(Date),
+				PropTypes.oneOf([null]),
+			]),
 		})
 	),
 }
