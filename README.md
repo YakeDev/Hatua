@@ -1,27 +1,32 @@
-# CV Application Creator
+# Hatua
 
-The **CV Application Creator** is an interactive web application, built with **React**, that allows users to easily create a CV online. This project, my first in React, is designed for beginners looking to generate a professional CV without needing complex software.
+Hatua aide à présenter son parcours dans un CV clair et à télécharger un PDF prêt à partager.
 
-## Screenshot
+## Version actuelle
 
-![Cv app screenshot](./image.png)
+- Éditeur web React et Vite, avec aperçu en direct, deux présentations, trois palettes et une photo facultative.
+- Saisie des coordonnées, du profil, des formations et des expériences.
+- Sauvegarde automatique **dans le navigateur de l'appareil utilisé** (`localStorage`, clé `cv-app-state-v1`). Les CV ne sont pas synchronisés entre appareils. Les données déjà enregistrées sous cette clé restent lisibles.
+- Export PDF à partir de l'aperçu. Le PDF est construit à partir d'une capture HTML et doit encore être vérifié sur des CV longs et différents navigateurs avant une publication à grande échelle.
 
-## Features
+Cette version ne propose pas encore de comptes, d'application Android native, de synchronisation, d'adaptation IA ni de publicité. Ces fonctions font partie des étapes suivantes du projet.
 
-- **User-friendly input**: Users can enter personal information, professional background, skills, and education.
-- **Real-time preview**: Instantly preview changes made to the CV.
-- **Auto-save functionality**: Using **localStorage**, all data is saved automatically and retained even after closing the browser.
-- **PDF export**: Download the finished CV, ready to be printed or shared.
+## Démarrer
 
-## Technologies Used
+```bash
+npm ci
+npm run dev
+```
 
-- **Frontend**: React, JavaScript, HTML, CSS
-- **Storage**: localStorage for retaining data between sessions
+Vérifier les changements :
 
-## Learning Objectives
+```bash
+npm run lint
+npm run build
+```
 
-- Master the basics of React to create dynamic components.
-- Use **localStorage** to enhance the user experience by implementing an auto-save feature.
-- Deepen my skills in **JavaScript** and **CSS** to build engaging user interfaces.
+## Direction du produit
 
-Explore the **CV Application Creator** and create your professional CV in just a few simple steps!
+Conserver le site web, construire l'application Android avec React Native et Expo, puis envisager iOS. Partager les modèles de données et la logique métier entre les applications. Les comptes et la synchronisation nécessiteront un service côté serveur. L'IA devra suggérer des formulations conformes au parcours réel, que le candidat pourra accepter ou refuser.
+
+Le document de cadrage détaillé est proposé dans la [PR d'architecture](https://github.com/YakeDev/Hatua/pull/1).

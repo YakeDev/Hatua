@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { BiPlusCircle } from 'react-icons/bi'
 import {
 	FaBriefcase,
@@ -9,7 +9,6 @@ import {
 	FaPalette,
 	FaUserTie,
 } from 'react-icons/fa6'
-import html2pdf from 'html2pdf.js'
 
 import CvPreview from './components/CvPreview'
 import EducationToggle from './components/EducationToggle'
@@ -66,30 +65,29 @@ const TEMPLATE_OPTIONS = {
 }
 
 const defaultEducationInfo = {
-	schoolName: "Bachelor's in Computer Science",
-	studyTitle: 'University of Technology | Expected Graduation',
-	dateOfStudy: new Date(),
+	schoolName: '',
+	studyTitle: '',
+	dateOfStudy: null,
 }
 
 const defaultPracticalInfo = {
-	practicalTitle: 'Junior Web Developer',
-	company: 'Tech Solutions Inc., Remote',
-	location: 'Zambia, Lusaka',
-	startDate: new Date(),
-	endDate: new Date(),
+	practicalTitle: '',
+	company: '',
+	location: '',
+	startDate: null,
+	endDate: null,
 	isCurrent: false,
 }
 
 const DEFAULT_STATE = {
 	generalInfo: {
-		name: 'YakeDev Kay',
-		profession: 'Web Developer / UX Designer',
-		email: 'erickay@gmail.com',
-		phone: '+248 812 345 678',
+		name: '',
+		profession: '',
+		email: '',
+		phone: '',
 	},
 	objectiveText: {
-		objective:
-			'Enthusiastic web developer and UX designer with a passion for crafting seamless, user-centered digital experiences. Seeking opportunities to leverage my skills in front-end development and design to contribute to impactful projects.',
+		objective: '',
 	},
 	educationToggles: [
 		{
@@ -142,36 +140,43 @@ const normalizePracticalToggles = (toggles = DEFAULT_STATE.practicalToggles) =>
 
 const loadStoredState = () => {
 	if (typeof window === 'undefined') {
-		return DEFAULT_STATE
+		return { snapshot: DEFAULT_STATE, loadError: false }
 	}
 
 	try {
 		const raw = window.localStorage.getItem(STORAGE_KEY)
 		if (!raw) {
-			return DEFAULT_STATE
+			return { snapshot: DEFAULT_STATE, loadError: false }
 		}
 
 		const parsed = JSON.parse(raw)
+		if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+			throw new Error('Invalid saved CV data')
+		}
 
 		return {
-			generalInfo: {
-				...DEFAULT_STATE.generalInfo,
-				...parsed.generalInfo,
+			snapshot: {
+				generalInfo: {
+					...DEFAULT_STATE.generalInfo,
+					...parsed.generalInfo,
+				},
+				objectiveText: {
+					...DEFAULT_STATE.objectiveText,
+					...parsed.objectiveText,
+				},
+				educationToggles: normalizeEducationToggles(parsed.educationToggles),
+				practicalToggles: normalizePracticalToggles(parsed.practicalToggles),
+				appearance: {
+					...DEFAULT_STATE.appearance,
+					...parsed.appearance,
+				},
 			},
-			objectiveText: {
-				...DEFAULT_STATE.objectiveText,
-				...parsed.objectiveText,
-			},
-			educationToggles: normalizeEducationToggles(parsed.educationToggles),
-			practicalToggles: normalizePracticalToggles(parsed.practicalToggles),
-			appearance: {
-				...DEFAULT_STATE.appearance,
-				...parsed.appearance,
-			},
+			loadError: false,
 		}
 	} catch (error) {
 		console.warn('Unable to load saved CV data:', error)
-		return DEFAULT_STATE
+		// Keep the original data intact until the user can recover it.
+		return { snapshot: DEFAULT_STATE, loadError: true }
 	}
 }
 
@@ -207,7 +212,7 @@ const serializeState = ({
 })
 
 const App = () => {
-	const storedSnapshot = useMemo(loadStoredState, [])
+	const { snapshot: storedSnapshot, loadError } = useMemo(loadStoredState, [])
 
 	const [educationToggles, setEducationToggles] = useState(
 		() => storedSnapshot.educationToggles
@@ -225,6 +230,13 @@ const App = () => {
 		() => storedSnapshot.appearance
 	)
 	const [showPreviewOnly, setShowPreviewOnly] = useState(false)
+	const [mobilePanel, setMobilePanel] = useState('editor')
+	const [saveError, setSaveError] = useState(false)
+	const [downloadError, setDownloadError] = useState('')
+	const [isGenerating, setIsGenerating] = useState(false)
+	const previewFrameRef = useRef(null)
+	const previewRef = useRef(null)
+	const [previewMetrics, setPreviewMetrics] = useState({ scale: 1, height: 0 })
 
 	const selectedTheme = useMemo(
 		() => COLOR_THEMES[appearance.theme] ?? COLOR_THEMES.cobalt,
@@ -237,7 +249,7 @@ const App = () => {
 	)
 
 	useEffect(() => {
-		if (typeof window === 'undefined') return
+		if (typeof window === 'undefined' || loadError) return
 
 		const payload = serializeState({
 			generalInfo,
@@ -247,14 +259,37 @@ const App = () => {
 			appearance,
 		})
 
-		window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload))
+		try {
+			window.localStorage.setItem(STORAGE_KEY, JSON.stringify(payload))
+			setSaveError(false)
+		} catch (error) {
+			console.warn('Unable to save CV data:', error)
+			setSaveError(true)
+		}
 	}, [
+		loadError,
 		appearance,
 		educationToggles,
 		generalInfo,
 		objectiveText,
 		practicalToggles,
 	])
+
+	useEffect(() => {
+		const frame = previewFrameRef.current
+		const preview = previewRef.current
+		if (!frame || !preview || typeof ResizeObserver === 'undefined') return
+
+		const measure = () => {
+			const scale = Math.min(1, frame.clientWidth / preview.offsetWidth)
+			setPreviewMetrics({ scale, height: preview.scrollHeight * scale })
+		}
+		const observer = new ResizeObserver(measure)
+		observer.observe(frame)
+		observer.observe(preview)
+		measure()
+		return () => observer.disconnect()
+	}, [mobilePanel, showPreviewOnly])
 
 	const addEducationToggle = () => {
 		setEducationToggles((prev) => [
@@ -300,6 +335,7 @@ const App = () => {
 	}
 
 	const handlePracticalChange = (id, updatedInfo) => {
+		setDownloadError('')
 		setPracticalToggles((prev) =>
 			prev.map((toggle) => {
 				if (toggle.id !== id) return toggle
@@ -323,6 +359,7 @@ const App = () => {
 	}
 
 	const handleInputChange = ({ target: { name, value } }) => {
+		setDownloadError('')
 		setGeneralInfo((prevInfo) => ({
 			...prevInfo,
 			[name]: value,
@@ -366,78 +403,146 @@ const App = () => {
 		setShowPreviewOnly((prev) => !prev)
 	}
 
-	const handleDownload = () => {
-		const element = document.getElementById('cv-preview')
-		if (!element) return
+	const handleDownload = async () => {
+		const element = previewRef.current
+		if (!element || isGenerating) return
+
+		const name = generalInfo.name.trim()
+		const email = generalInfo.email.trim()
+		const phone = generalInfo.phone.trim()
+		if (!name || (!email && !phone)) {
+			setDownloadError('Ajoutez votre nom et au moins un moyen de contact avant de télécharger le CV.')
+			setMobilePanel('editor')
+			setShowPreviewOnly(false)
+			return
+		}
+		if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+			setDownloadError('Vérifiez votre adresse e-mail avant de télécharger le CV.')
+			setMobilePanel('editor')
+			setShowPreviewOnly(false)
+			return
+		}
+		if (practicalToggles.some(({ info }) => !info.isCurrent && info.startDate && info.endDate && info.startDate > info.endDate)) {
+			setDownloadError('Corrigez les dates de vos expériences avant de télécharger le CV.')
+			setMobilePanel('editor')
+			setShowPreviewOnly(false)
+			return
+		}
+
+		setDownloadError('')
+		setIsGenerating(true)
+		const safeName = name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-|-$/g, '') || 'Candidat'
 
 		const opt = {
-			margin: [6, 10],
-			filename: 'cv.pdf',
+			margin: [10, 10],
+			filename: `CV-${safeName}.pdf`,
 			image: { type: 'jpeg', quality: 1 },
 			html2canvas: {
-				scale: 3,
+				scale: 2,
 				useCORS: true,
-				logging: true,
-				dpi: 300,
-				letterRendering: true,
+				logging: false,
 			},
 			jsPDF: {
 				unit: 'mm',
 				format: 'a4',
 				orientation: 'portrait',
 			},
+			pagebreak: { mode: ['css', 'legacy'] },
 		}
 
 		const container = document.createElement('div')
-		container.style.width = '210mm'
-		container.style.minHeight = '297mm'
-		container.style.padding = '12mm 14mm'
+		container.style.width = '190mm'
 		container.style.backgroundColor = '#ffffff'
-		container.style.margin = '0 auto'
 		container.style.boxSizing = 'border-box'
 		const cloned = element.cloneNode(true)
+		cloned.style.width = '100%'
+		cloned.style.minHeight = '0'
+		cloned.style.transform = 'none'
+		cloned.style.boxShadow = 'none'
 		container.appendChild(cloned)
 
-		html2pdf().set(opt).from(container).save()
+		try {
+			const { default: html2pdf } = await import('html2pdf.js')
+			await html2pdf().set(opt).from(container).save()
+		} catch (error) {
+			console.error('Unable to export the CV:', error)
+			setDownloadError('Le PDF n’a pas pu être généré. Réessayez dans un instant.')
+		} finally {
+			setIsGenerating(false)
+		}
 	}
 
-	const previewWrapperClasses = showPreviewOnly
-		? 'col-span-12 w-full h-full'
-		: 'col-span-12 md:col-span-7 mx-auto w-4/5 md:w-4/5'
-
-	const sidebarWrapperClasses = showPreviewOnly
-		? 'hidden'
-		: 'ek-sidebar h-full overflow-scroll border col-span-12 w-4/5 md:col-span-5 p-8 bg-white shadow-lg shadow-slate-200 rounded-xl mx-auto'
-
 	return (
-		<div className='ek-container grid grid-cols-12 gap-4 p-6 md:h-screen overflow-hidden bg-slate-200 mx-auto'>
-			<div className='col-span-12 flex items-center justify-end gap-3'>
+		<div className='hatua-page'>
+			<header className='site-header'>
+				<a href='#editor' className='brand' aria-label='Hatua, aller à l’éditeur de CV'>
+					<span className='brand-mark' aria-hidden='true'>H</span>
+					<span>hatua<span className='brand-dot'>.</span></span>
+				</a>
+				<span className='header-note'>Votre parcours mérite d’être bien présenté.</span>
+			</header>
+			<section className='intro' aria-labelledby='intro-title'>
+				<p className='eyebrow'>Votre candidature commence ici</p>
+				<h1 id='intro-title'>Un CV clair, prêt à partager.</h1>
+				<p>Racontez votre parcours, voyez le résultat au fur et à mesure, puis téléchargez votre CV en PDF.</p>
+				<div className='intro-details' aria-label='Ce que propose Hatua'>
+					<span>Gratuit</span><span>Sans compte</span><span>Enregistrement sur cet appareil</span>
+				</div>
+			</section>
+			<div className='workspace-heading'>
+				<div>
+					<p className='eyebrow'>Éditeur de CV</p>
+					<h2>Votre parcours, à votre façon</h2>
+					<p>Commencez par vos coordonnées. Ajoutez ensuite vos expériences et choisissez la présentation qui vous convient.</p>
+				</div>
+				<div className='workspace-actions'>
 				<button
 					type='button'
 					onClick={togglePreviewMode}
-					className='flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 transition'>
+					className='preview-toggle'>
 					<FaEye />
 					<span>
 						{showPreviewOnly
-							? 'Quitter le mode aperçu'
-							: 'Mode aperçu plein écran'}
+							? 'Voir l’éditeur'
+							: 'Agrandir l’aperçu'}
 					</span>
 				</button>
 				<button
+					type='button'
 					onClick={handleDownload}
-					className='ek-download-cv-btn px-4 py-2 bg-blue-700 text-white rounded-lg text-sm font-medium hover:bg-blue-800 transition'>
-					Télécharger le CV
+					disabled={isGenerating}
+					className='download-button'>
+					{isGenerating ? 'Création du PDF…' : 'Télécharger le PDF'}
 				</button>
+				</div>
 			</div>
-			<div className={sidebarWrapperClasses}>
+			{downloadError && <p className='status-message status-error' role='alert'>{downloadError}</p>}
+			{(loadError || saveError) && (
+				<p className='status-message status-error' role='alert'>
+					{loadError
+						? 'Impossible de lire le CV enregistré. Les anciennes données n’ont pas été effacées ; les modifications de cette session ne seront pas sauvegardées.'
+						: 'La sauvegarde a échoué. Votre CV est visible ici, mais il risque de disparaître si vous fermez cette page.'}
+				</p>
+			)}
+			<nav className='mobile-tabs' aria-label='Affichage du CV'>
+				<button type='button' aria-current={mobilePanel === 'editor' ? 'page' : undefined} onClick={() => { setMobilePanel('editor'); setShowPreviewOnly(false) }}>Rédiger</button>
+				<button type='button' aria-current={mobilePanel === 'preview' ? 'page' : undefined} onClick={() => setMobilePanel('preview')}>Voir le CV</button>
+			</nav>
+			<main className={`workspace-grid ${showPreviewOnly ? 'preview-only' : ''}`}>
+			<section id='editor' className={`editor-panel ${mobilePanel === 'preview' || showPreviewOnly ? 'mobile-hidden' : ''}`} aria-label='Rédiger le CV'>
+				<div className='editor-intro'>
+					<span className='editor-step'>01 / VOTRE PARCOURS</span>
+					<h3>Faisons connaissance</h3>
+					<p>Remplissez les rubriques utiles pour votre candidature. Vous pouvez revenir les modifier à tout moment.</p>
+				</div>
 				<div className='ek-section mb-6'>
 					<SectionTitle title='Informations générales' icon={FaUserTie} />
-					<form className='max-w-sm mx-auto'>
+					<div>
 						<GeneralInfoSection
 							generalInfo={generalInfo}
 							onChange={handleInputChange}
 						/>
-					</form>
+					</div>
 				</div>
 
 				<div className='ek-section mb-8'>
@@ -450,6 +555,7 @@ const App = () => {
 							<EducationToggle
 								key={toggle.id}
 								id={toggle.id}
+								defaultOpen={index === 0}
 								educationInfo={toggle.info}
 								onChange={handleEducationChange}
 								onDelete={deleteEducationToggle}
@@ -476,6 +582,7 @@ const App = () => {
 							<PracticalToggle
 								key={toggle.id}
 								id={toggle.id}
+								defaultOpen={index === 0}
 								practicalInfo={toggle.info}
 								onDelete={deletePracticalToggle}
 								onChange={handlePracticalChange}
@@ -600,15 +707,18 @@ const App = () => {
 					</div>
 				</div>
 
-				<p className='text-xs text-slate-500'>
-					Les modifications sont sauvegardées automatiquement sur cet
-					appareil.
+				<p className='save-note' role='status'>
+					{loadError || saveError ? 'Sauvegarde indisponible' : 'Enregistré automatiquement dans ce navigateur. Vos données ne sont pas synchronisées avec d’autres appareils.'}
 				</p>
-			</div>
+			</section>
 
-			<div
-				className={`${previewWrapperClasses} border overflow-scroll bg-white shadow-lg shadow-slate-200 rounded-xl`}>
-				<div className='ek-cv-preview min-h-full' id='cv-preview'>
+			<section className={`preview-panel ${mobilePanel === 'editor' && !showPreviewOnly ? 'mobile-hidden' : ''}`} aria-label='Aperçu du CV'>
+				<div className='preview-panel-header'>
+					<div><span className='editor-step'>02 / APERÇU</span><h3>Votre CV en direct</h3></div>
+					<span>Format A4</span>
+				</div>
+				<div ref={previewFrameRef} className='preview-frame' style={{ height: previewMetrics.height || undefined }}>
+				<div className='ek-cv-preview' ref={previewRef} id='cv-preview' style={{ transform: `scale(${previewMetrics.scale})` }}>
 					<CvPreview
 						generalInfo={generalInfo}
 						objectiveText={objectiveText}
@@ -620,7 +730,10 @@ const App = () => {
 						photoUrl={appearance.photo}
 					/>
 				</div>
-			</div>
+				</div>
+			</section>
+			</main>
+			<footer className='site-footer'>Hatua · Créez un CV qui raconte votre parcours.</footer>
 		</div>
 	)
 }

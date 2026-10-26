@@ -51,6 +51,12 @@ const CvPreview = ({
   const sectionSpacing = isCompact ? "mb-6 px-10" : "mb-8 px-16";
   const generalInfoPadding = isCompact ? "px-10 py-10" : "px-14 py-14";
   const rootSpacingClass = isCompact ? "space-y-6 pb-8" : "space-y-8 pb-12";
+  const educationEntries = educationInfos.filter((info) =>
+    Boolean(info?.studyTitle?.trim() || info?.schoolName?.trim())
+  );
+  const practicalEntries = practicalInfos.filter((info) =>
+    Boolean(info?.practicalTitle?.trim() || info?.company?.trim() || info?.location?.trim())
+  );
 
   return (
     <div className={rootSpacingClass} style={{ fontFamily }}>
@@ -60,9 +66,9 @@ const CvPreview = ({
       >
         <CvGeneralInfo
           name={generalInfo?.name || "Votre nom"}
-          profession={generalInfo?.profession || "Votre fonction"}
-          email={generalInfo?.email || "contact@email.com"}
-          phone={generalInfo?.phone || "Téléphone"}
+          profession={generalInfo?.profession || ""}
+          email={generalInfo?.email || ""}
+          phone={generalInfo?.phone || ""}
           accentColor={accentColor}
           textColor={headingColor}
           photoUrl={photoUrl}
@@ -70,7 +76,7 @@ const CvPreview = ({
         />
       </div>
 
-      <div className={`ek-cv-section ${sectionSpacing}`}>
+      {objectiveText?.objective?.trim() && <div className={`ek-cv-section ${sectionSpacing}`}>
         <SectionHeading
           icon={FaBullseye}
           label="Objectif"
@@ -82,9 +88,9 @@ const CvPreview = ({
           objectiveText={objectiveText?.objective || ""}
           textColor={bodyColor}
         />
-      </div>
+      </div>}
 
-      <div className={`ek-cv-section ${sectionSpacing}`}>
+      {educationEntries.length > 0 && <div className={`ek-cv-section ${sectionSpacing}`}>
         <SectionHeading
           icon={FaGraduationCap}
           label="Formation"
@@ -92,25 +98,19 @@ const CvPreview = ({
           accentLight={accentLight}
           compact={isCompact}
         />
-        {educationInfos.length > 0 ? (
-          educationInfos.map((educationInfo, index) => (
+          {educationEntries.map((educationInfo, index) => (
             <CvEducationExp
               key={`education-${index}`}
-              titleStudy={educationInfo?.studyTitle || "Intitulé à préciser"}
-              schoolName={educationInfo?.schoolName || "Établissement"}
+              titleStudy={educationInfo?.studyTitle || ""}
+              schoolName={educationInfo?.schoolName || ""}
               dateOfStudy={educationInfo?.dateOfStudy}
               textColor={bodyColor}
               accentColor={accentColor}
             />
-          ))
-        ) : (
-          <p className="text-sm text-slate-400">
-            Renseignez vos études pour enrichir le CV.
-          </p>
-        )}
-      </div>
+          ))}
+      </div>}
 
-      <div className={`ek-cv-section ${sectionSpacing}`}>
+      {practicalEntries.length > 0 && <div className={`ek-cv-section ${sectionSpacing}`}>
         <SectionHeading
           icon={FaBriefcase}
           label="Expérience"
@@ -118,28 +118,20 @@ const CvPreview = ({
           accentLight={accentLight}
           compact={isCompact}
         />
-        {practicalInfos.length > 0 ? (
-          practicalInfos.map((practicalInfo, index) => (
+          {practicalEntries.map((practicalInfo, index) => (
             <CvPracticalExp
               key={`practical-${index}`}
-              practicalTitle={
-                practicalInfo?.practicalTitle || "Intitulé du poste"
-              }
-              company={practicalInfo?.company || "Entreprise"}
-              location={practicalInfo?.location || "Localisation"}
+              practicalTitle={practicalInfo?.practicalTitle || ""}
+              company={practicalInfo?.company || ""}
+              location={practicalInfo?.location || ""}
               startDate={practicalInfo?.startDate}
               endDate={practicalInfo?.endDate}
               isCurrent={Boolean(practicalInfo?.isCurrent)}
               textColor={bodyColor}
               accentColor={accentColor}
             />
-          ))
-        ) : (
-          <p className="text-sm text-slate-400">
-            Ajoutez vos expériences professionnelles marquantes.
-          </p>
-        )}
-      </div>
+          ))}
+      </div>}
     </div>
   );
 };
