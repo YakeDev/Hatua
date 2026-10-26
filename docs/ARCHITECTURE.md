@@ -1,6 +1,6 @@
 # Hatua — Architecture web, Android et iOS
 
-Statut : proposition de cadrage, 26 octobre 2026. Référence : branche main, commit 6a0d7f6. Ce document décrit une cible et un ordre de migration ; il ne prétend pas que ces fonctions sont déjà implémentées.
+Statut : cadrage mis à jour le 26 octobre 2026. Le nouveau parcours web de la PR #2 est fusionné ; un premier pilote Expo Android est proposé dans la PR #3. Les comptes, la synchronisation et l'IA restent à développer.
 
 ## 1. Produit et première livraison
 
@@ -16,14 +16,14 @@ Le dépôt contient actuellement un site React/Vite qui utilise HTML, Tailwind, 
 
 | Chemin cible | Responsabilité | État |
 | --- | --- | --- |
-| apps/web | Site React/Vite existant, adapté progressivement au nouveau modèle de CV | À déplacer sans changement fonctionnel au début |
-| apps/mobile | Application React Native/Expo Router, Android d'abord, iOS ensuite | À créer |
-| packages/domain | Types, schémas, validation, migrations et règles de candidature indépendants des interfaces | À créer |
+| Racine du dépôt (web) | Site React/Vite existant ; déploiement actuel conservé | Présent, parcours amélioré par la PR #2 ; déplacement vers apps/web différé |
+| apps/mobile | Application React Native/Expo Router, Android d'abord, iOS ensuite | Pilote hors ligne proposé dans la PR #3, recette appareil à faire |
+| packages/domain | Types, schémas, validation, migrations et règles de candidature indépendants des interfaces | Premier modèle versionné proposé dans la PR #3 ; migration web à poursuivre |
 | packages/cv-document | Modèle des sections et contenu du document ; moteur PDF propre à chaque plateforme si nécessaire | À créer après validation du modèle |
 | apps/api | Accès IA, quotas, puis identité/synchronisation et droits payants | À créer lorsque l'IA arrive |
 | docs | Décisions, parcours, contrats de données et recette | Présent document |
 
-Le package racine utilisera npm workspaces pour apps/* et packages/*, cohérent avec le package-lock actuel. TypeScript sera utilisé pour le nouveau code ; le site JavaScript migrera progressivement. Expo Router organise la navigation mobile. Les composants React DOM du site et les composants React Native du mobile restent dans leurs applications respectives. Seuls les types, données et règles sans dépendance au DOM ni aux API natives entrent dans packages/domain.
+La PR #3 introduit npm workspaces pour apps/mobile et packages/*, sans déplacer le site web. Un déplacement futur vers apps/web devra préserver la configuration de déploiement et les brouillons locaux. TypeScript sera utilisé pour le nouveau code ; le site JavaScript migrera progressivement. Expo Router organise la navigation mobile. Les composants React DOM du site et les composants React Native du mobile restent dans leurs applications respectives. Seuls les types, données et règles sans dépendance au DOM ni aux API natives entrent dans packages/domain.
 
 Ce choix laisse ouverte une éventuelle interface web Expo plus tard, si son coût devient justifié. Il n'est pas nécessaire pour livrer Android.
 
@@ -61,14 +61,14 @@ L'application envoie au serveur le profil et l'offre nécessaires pour une adapt
 
 Le modèle commercial à tester est : éditeur local gratuit ; annonces discrètes dans l'application mobile après validation de son usage ; crédits pour les fonctions IA si les coûts et l'intérêt des utilisateurs le justifient. Un abonnement peut ensuite viser des professionnels utilisant Hatua de manière régulière. AdMob appartient à l'application mobile et ne doit jamais figurer dans le PDF. L'intégration publicitaire exige une build de développement native pour le SDK, des annonces de test, une politique de confidentialité et les choix de consentement applicables. Les achats numériques dans une application distribuée sur Google Play devront suivre ses règles de facturation.
 
-Les données d'un CV sont personnelles. Ne pas mettre de clé secrète dans le navigateur ou l'application mobile ; ne pas journaliser intégralement les CV côté serveur ; prévoir export et suppression. Retirer les coordonnées de démonstration actuellement préremplies avant la diffusion publique.
+Les données d'un CV sont personnelles. Ne pas mettre de clé secrète dans le navigateur ou l'application mobile ; ne pas journaliser intégralement les CV côté serveur ; prévoir export et suppression. La PR #2 a retiré les coordonnées de démonstration pour les nouveaux CV ; les brouillons historiques sont conservés.
 
 ## 7. Ordre de réalisation et critères de sortie
 
 | Phase | Livraison | Vérification décisive |
 | --- | --- | --- |
 | 0. Stabiliser | Dépendances déclarées, installation propre, lint/build, export actuel mesuré | Installation neuve réussie ; défauts connus documentés |
-| 1. Organiser | npm workspaces, site déplacé vers apps/web, configuration de déploiement ajustée | Même site et données locales conservées ; build web réussie |
+| 1. Organiser | npm workspaces ; site maintenu à la racine jusqu'à validation du déploiement | Même site et données locales conservées ; build web réussie |
 | 2. Partager le modèle | packages/domain, migrations, compétences, langues, réalisations, plusieurs CV | Anciennes données importées ; duplication et sauvegarde fiables |
 | 3. Android hors ligne | Application Expo avec navigation et édition par sections, SQLite | Création, fermeture, réouverture et modification sans réseau |
 | 4. Document | Aperçu, PDF et partage Android ; export web amélioré | PDF lisible, texte sélectionnable, plusieurs pages vérifiées sur appareil |
