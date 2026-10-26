@@ -1,9 +1,9 @@
 import PropTypes from "prop-types";
 
 const CvPracticalExp = ({
-  practicalTitle = "Practical Title",
-  company = "Company name",
-  location = "Company location",
+  practicalTitle = "",
+  company = "",
+  location = "",
   startDate = null,
   endDate = null,
   isCurrent = false,
@@ -17,20 +17,20 @@ const CvPracticalExp = ({
 
   // Formatage des dates pour n'afficher que le mois et l'année
   const formattedStartDate = hasValidStart
-    ? startDate.toLocaleString("default", {
+    ? startDate.toLocaleString("fr-FR", {
         month: "long",
         year: "numeric",
       })
     : null;
 
   const formattedEndDate = hasValidEnd
-    ? endDate.toLocaleString("default", {
+    ? endDate.toLocaleString("fr-FR", {
         month: "long",
         year: "numeric",
       })
     : null;
 
-  let dateRange = "Dates à préciser";
+  let dateRange = "";
   if (formattedStartDate && formattedEndDate) {
     dateRange = `${formattedStartDate} - ${formattedEndDate}`;
   } else if (formattedStartDate && isCurrent) {
@@ -47,7 +47,7 @@ const CvPracticalExp = ({
   const headingStyle = accentColor ? { color: accentColor } : undefined;
 
   return (
-    <div className="font-normal text-sm ps-3 mb-3" style={containerStyle}>
+    <div className="practical-experience font-normal text-sm ps-3 mb-3" style={containerStyle}>
       <p className="uppercase font-semibold" style={headingStyle}>
         {practicalTitle}
       </p>
@@ -55,7 +55,7 @@ const CvPracticalExp = ({
         <span className="font-medium text-sm">{company}</span>
         <span>{company && location ? " • " : ""}</span>
         <span>{location}</span>
-        <span>{` | ${dateRange}`}</span>
+        {dateRange && <span>{` | ${dateRange}`}</span>}
       </p>
     </div>
   );

@@ -11,9 +11,9 @@ const GeneralInfoSection = ({ generalInfo, onChange }) => {
       <div className="input-container mb-4">
         <label
           htmlFor="name"
-          className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+          className="block mb-2 text-sm font-medium text-gray-900"
         >
-          Nom
+          Nom complet
         </label>
         <input
           type="text"
@@ -23,15 +23,15 @@ const GeneralInfoSection = ({ generalInfo, onChange }) => {
           value={generalInfo.name}
           onChange={onChange}
           required
-          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2"
         />
       </div>
       <div className="input-container mb-4">
         <label
           htmlFor="profession"
-          className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+          className="block mb-2 text-sm font-medium text-gray-900"
         >
-          Profession
+          Métier ou poste visé (facultatif)
         </label>
         <input
           type="text"
@@ -40,14 +40,13 @@ const GeneralInfoSection = ({ generalInfo, onChange }) => {
           placeholder="Votre profession"
           value={generalInfo.profession}
           onChange={onChange}
-          required
-          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2"
         />
       </div>
       <div className="input-container mb-4">
         <label
           htmlFor="email"
-          className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+          className="block mb-2 text-sm font-medium text-gray-900"
         >
           E-mail
         </label>
@@ -58,8 +57,7 @@ const GeneralInfoSection = ({ generalInfo, onChange }) => {
           placeholder="Votre e-mail"
           value={generalInfo.email}
           onChange={onChange}
-          required
-          className={`bg-gray-50 border text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 ${
+          className={`bg-gray-50 border text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 ${
             isEmailInvalid ? "border-red-400" : "border-gray-300"
           }`}
         />
@@ -76,7 +74,7 @@ const GeneralInfoSection = ({ generalInfo, onChange }) => {
       <div className="input-container mb-4">
         <label
           htmlFor="phone"
-          className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+          className="block mb-2 text-sm font-medium text-gray-900"
         >
           Téléphone
         </label>
@@ -87,7 +85,7 @@ const GeneralInfoSection = ({ generalInfo, onChange }) => {
           placeholder="Votre numéro de téléphone"
           value={generalInfo.phone}
           onChange={onChange}
-          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2"
         />
         <p className="mt-1 text-xs text-slate-500">
           Ajoutez le code du pays pour faciliter le contact (+33, +243…).

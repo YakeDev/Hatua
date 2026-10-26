@@ -1,8 +1,8 @@
 import PropTypes from "prop-types";
 
 const CvEducationExp = ({
-  titleStudy = "Title Study",
-  schoolName = "School Nam",
+  titleStudy = "",
+  schoolName = "",
   dateOfStudy = null,
   textColor,
   accentColor,
@@ -12,7 +12,7 @@ const CvEducationExp = ({
 
   // Formatage de la date pour n'afficher que le mois et l'année
   const formattedDate = hasValidDate
-    ? dateOfStudy.toLocaleString("default", {
+    ? dateOfStudy.toLocaleString("fr-FR", {
         month: "long", // Affiche le mois complet
         year: "numeric", // Affiche l'année
       })
@@ -30,7 +30,7 @@ const CvEducationExp = ({
         {titleStudy}
       </h3>
       <p className="text-sm" style={containerStyle}>
-        {[schoolName, formattedDate || "Date à préciser"]
+        {[schoolName, formattedDate]
           .filter(Boolean)
           .join(" | ")}
       </p>

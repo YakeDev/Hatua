@@ -9,8 +9,9 @@ const EducationToggle = ({
   onDelete,
   onChange,
   educationInfo,
+  defaultOpen = false,
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(defaultOpen);
 
   const handleToggle = () => {
     setIsOpen(!isOpen);
@@ -66,7 +67,7 @@ const EducationToggle = ({
 
   return (
     <div className=" border border-slate-200 rounded-xl mb-3">
-      <div className="toggle-header flex items-start justify-between w-full p-3 font-medium rtl:text-right text-gray-500 focus:ring-4 rounded-xl border border-t-0 border-x-0 focus:ring-gray-200 dark:focus:ring-gray-800 dark:border-slate-700 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 gap-3">
+      <div className="toggle-header flex items-start justify-between w-full p-3 font-medium rtl:text-right text-gray-500 focus:ring-4 rounded-xl border border-t-0 border-x-0 focus:ring-gray-200 hover:bg-gray-100 gap-3">
         <div className="flex-1">
           <p className="text-sm font-semibold text-slate-600">{title}</p>
           {summary ? (
@@ -77,22 +78,23 @@ const EducationToggle = ({
             </p>
           )}
         </div>
-        <button onClick={handleToggle} className="text-xl p-1">
+        <button type="button" onClick={handleToggle} aria-label={`${isOpen ? 'Réduire' : 'Ouvrir'} ${title}`} aria-expanded={isOpen} aria-controls={`education-${id}`} className="text-xl p-1">
           {isOpen ? <BiChevronDown /> : <BiChevronUp />}
         </button>
       </div>
       {isOpen && (
-        <div className="ek-toggle p-3">
+        <div className="ek-toggle p-3" id={`education-${id}`}>
           <EducationForm
             educationInfo={educationInfo}
             onChange={handleEducationChange}
+            formId={id}
           />
           <button
             type="button"
             onClick={() => onDelete(id)}
             className="flex items-center text-lg border px-12 py-1.5 rounded-lg bg-red-600 text-white hover:bg-red-700 transition duration-700 ease-in-out"
           >
-            <BiTrash /> <span className="text-base"> Delete</span>
+            <BiTrash /> <span className="text-base"> Supprimer</span>
           </button>
         </div>
       )}
@@ -113,6 +115,7 @@ EducationToggle.propTypes = {
       PropTypes.oneOf([null]),
     ]),
   }).isRequired,
+  defaultOpen: PropTypes.bool,
 };
 
 export default EducationToggle;

@@ -1,10 +1,10 @@
 import PropTypes from "prop-types";
 
 const CvGeneralInfo = ({
-  name = "Yake Developer",
-  profession = "Front-end Developer",
-  email = "erickay.dev@gmail.com",
-  phone = "+243 810 000 000",
+  name = "",
+  profession = "",
+  email = "",
+  phone = "",
   accentColor = "#1d4ed8",
   textColor = "#0f172a",
   photoUrl,
@@ -38,9 +38,7 @@ const CvGeneralInfo = ({
           >
             {name}
           </h1>
-          <p className="uppercase font-normal text-sm opacity-80">
-            {profession}
-          </p>
+          {profession && <p className="uppercase font-normal text-sm opacity-80">{profession}</p>}
         </div>
       </div>
       <div
@@ -50,8 +48,8 @@ const CvGeneralInfo = ({
             : "ek-contact-info col-span-4 flex flex-col gap-1 text-sm items-start"
         }
       >
-        <p className="font-medium">{email}</p>
-        <p>{phone}</p>
+        {email && <p className="font-medium">{email}</p>}
+        {phone && <p>{phone}</p>}
       </div>
     </div>
   );
