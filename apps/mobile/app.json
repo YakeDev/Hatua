@@ -1,0 +1,22 @@
+{
+  "expo": {
+    "name": "Hatua",
+    "slug": "hatua",
+    "scheme": "hatua",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "icon": "./assets/images/icon.png",
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#142341",
+        "foregroundImage": "./assets/images/android-icon-foreground.png"
+      }
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "plugins": ["expo-router"],
+    "experiments": { "typedRoutes": true }
+  }
+}
