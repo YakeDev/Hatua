@@ -8,6 +8,8 @@
     "userInterfaceStyle": "light",
     "icon": "./assets/images/icon.png",
     "android": {
+      "package": "com.yakedev.hatua",
+      "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#142341",
         "foregroundImage": "./assets/images/android-icon-foreground.png"
@@ -16,7 +18,11 @@
     "ios": {
       "supportsTablet": true
     },
-    "plugins": ["expo-router"],
-    "experiments": { "typedRoutes": true }
+    "plugins": [
+      "expo-router"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
   }
 }
